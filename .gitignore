@@ -1,0 +1,30 @@
+# Arquivos Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Configurações do VSCode
+.vscode/
+
+# Arquivos temporários
+*.log
+*.tmp
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos de ambiente virtual
+env/
+venv/
+ENV/
+.venv/
+
+# Arquivos de credenciais ou configs sensíveis (caso existam)
+*.env
+*.secret
+
+# Arquivos do Outlook temporários
+~$*
