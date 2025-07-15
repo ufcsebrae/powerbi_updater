@@ -28,3 +28,6 @@ ENV/
 
 # Arquivos do Outlook temporários
 ~$*
+
+# Arquivos de log
+logs/
