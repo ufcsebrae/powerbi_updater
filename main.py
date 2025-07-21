@@ -1,5 +1,7 @@
 import json
+import sys
 import time
+import difflib
 from powerbi import (
     get_access_token,
     get_group_and_dataset_ids,
@@ -7,15 +9,14 @@ from powerbi import (
     get_refresh_history
 )
 from email_utils import send_email_log
-from logger_utils import setup_logger 
-
+from logger_utils import setup_logger
 
 # Inicializa logger e armazena o caminho do log
 logger, log_file_path = setup_logger()
 
 # Carrega configurações
 with open("config.json") as f:
-    config = json.load(f)   
+    config = json.load(f)
 
 token = get_access_token()
 
@@ -24,7 +25,38 @@ if not token:
     exit()
 
 workspace_name = config["workspace_name"]
-dataset_names = config["datasets"]
+all_datasets = config["datasets"]
+datasets_lower = {ds.lower(): ds for ds in all_datasets}
+
+# Permitir nome via argumento ou input
+if len(sys.argv) > 1:
+    dataset_input = " ".join(sys.argv[1:]).strip()
+else:
+    dataset_input = input("Digite o nome do dataset (ou pressione Enter para todos): ").strip()
+
+# Define datasets a processar
+if dataset_input:
+    dataset_key = dataset_input.lower()
+    dataset_name = datasets_lower.get(dataset_key)
+
+    if not dataset_name:
+        similares = difflib.get_close_matches(dataset_input, all_datasets, n=1, cutoff=0.4)
+        if similares:
+            sugestao = similares[0]
+            confirm = input(f"⚠️ Dataset '{dataset_input}' não encontrado. Você quis dizer '{sugestao}'? (s/n): ").strip().lower()
+            if confirm == "s":
+                dataset_name = sugestao
+            else:
+                logger.info("❌ Operação cancelada pelo usuário.")
+                exit()
+        else:
+            logger.error(f"❌ Dataset '{dataset_input}' não encontrado nem similar.")
+            exit()
+
+    dataset_names = [dataset_name]
+else:
+    dataset_names = all_datasets
+    logger.info("🔁 Nenhum nome informado — executando todos os datasets.")
 
 # Descobre ID do workspace uma vez só
 group_id, _ = get_group_and_dataset_ids(token, workspace_name, dataset_names[0])
@@ -95,8 +127,7 @@ send_email_log(
     sender_email="",
     receiver_email="cesargl@sebraesp.com.br",
     smtp_server="", smtp_port=0, smtp_user="", smtp_password="",
-    attachment_path=log_file_path  # <- novo argumento
+    attachment_path=log_file_path
 )
-
 
 logger.info("✅ Todas as atualizações processadas e e-mail enviado.")
