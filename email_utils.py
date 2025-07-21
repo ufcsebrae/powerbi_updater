@@ -1,13 +1,15 @@
 import win32com.client as win32
 import os
+import pandas as pd
+import tempfile
 
 def send_email_log(subject, dataset_logs, sender_email, receiver_email, *_args, **_kwargs):
     """
     Envia e-mail via Outlook com o usuário logado no Windows,
-    incluindo o log como anexo, se fornecido via 'attachment_path'.
+    incluindo o log e uma planilha Excel com os dados dos datasets.
     """
 
-    # Monta tabela HTML dos datasets
+    # Monta a tabela HTML para o corpo do e-mail
     html_rows = ""
     for log in dataset_logs:
         html_rows += f"""
@@ -40,7 +42,7 @@ def send_email_log(subject, dataset_logs, sender_email, receiver_email, *_args, 
     </html>
     """
 
-    # Cria e-mail no Outlook
+    # Cria o e-mail no Outlook
     outlook = win32.Dispatch("Outlook.Application")
     mail = outlook.CreateItem(0)
     mail.To = receiver_email
@@ -51,6 +53,13 @@ def send_email_log(subject, dataset_logs, sender_email, receiver_email, *_args, 
     attachment_path = _kwargs.get("attachment_path")
     if attachment_path and os.path.exists(attachment_path):
         mail.Attachments.Add(os.path.abspath(attachment_path))
+
+    # Cria planilha Excel temporária com os dados
+    if dataset_logs:
+        df = pd.DataFrame(dataset_logs)
+        temp_excel = tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx")
+        df.to_excel(temp_excel.name, index=False, engine="openpyxl")
+        mail.Attachments.Add(temp_excel.name)
 
     mail.Send()
     print("📧 E-mail enviado via Outlook.")

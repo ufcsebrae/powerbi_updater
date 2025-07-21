@@ -84,3 +84,21 @@ def list_datasets_in_workspace(group_id, token):
         return response.status_code, response.json()
     except ValueError:
         return response.status_code, response.text
+    
+def get_group_id_by_name(token, workspace_name):
+    import requests
+
+    url = "https://api.powerbi.com/v1.0/myorg/groups"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(f"Erro ao obter workspaces: {response.text}")
+
+    workspaces = response.json().get("value", [])
+    for workspace in workspaces:
+        if workspace["name"].lower() == workspace_name.lower():
+            return workspace["id"]
+
+    raise Exception(f"Workspace '{workspace_name}' não encontrado.")
+    
