@@ -57,7 +57,8 @@ def send_email_log(subject, dataset_logs, sender_email, receiver_email, *_args, 
     # Cria planilha Excel temporária com os dados
     if dataset_logs:
         df = pd.DataFrame(dataset_logs)
-        temp_excel = tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx")
+        nome_arquivo = f"dataset_logs_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        temp_excel = os.path.join(tempfile.gettempdir(), nome_arquivo)
         df.to_excel(temp_excel.name, index=False, engine="openpyxl")
         mail.Attachments.Add(temp_excel.name)
 
