@@ -59,8 +59,8 @@ def send_email_log(subject, dataset_logs, sender_email, receiver_email, *_args, 
         df = pd.DataFrame(dataset_logs)
         nome_arquivo = f"dataset_logs_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         temp_excel = os.path.join(tempfile.gettempdir(), nome_arquivo)
-        df.to_excel(temp_excel.name, index=False, engine="openpyxl")
-        mail.Attachments.Add(temp_excel.name)
+        df.to_excel(temp_excel, index=False, engine="openpyxl")
+        mail.Attachments.Add(temp_excel)
 
     mail.Send()
     print("📧 E-mail enviado via Outlook.")
