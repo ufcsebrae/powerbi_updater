@@ -136,7 +136,7 @@ send_email_log(
     subject=f"Atualização de datasets | Workspace: {workspace_input}",
     dataset_logs=dataset_logs,
     sender_email="",
-    receiver_email="cesargl@sebraesp.com.br",
+    receiver_email="cesargl@sebraesp.com.br; e_gabrielapr@sebraesp.com.br",
     smtp_server="", smtp_port=0, smtp_user="", smtp_password="",
     attachment_path=log_file_path
 )
